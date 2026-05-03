@@ -42,4 +42,24 @@ public class UserService {
         }
         return user;
     }
+
+    public String updateAvatar(Integer id, String avatar) {
+        return userMapper.updateAvatar(id, avatar) > 0 ? "success" : "fail";
+    }
+
+    public String updateUsername(Integer id, String username) {
+        User existing = userMapper.findByUsername(username);
+        if (existing != null && !existing.getId().equals(id)) {
+            return "exists";
+        }
+        return userMapper.updateUsername(id, username) > 0 ? "success" : "fail";
+    }
+
+    public String updatePassword(Integer id, String oldPassword, String newPassword) {
+        User user = userMapper.findById(id);
+        if (user == null || !user.getPassword().equals(oldPassword)) {
+            return "wrong_password";
+        }
+        return userMapper.updatePassword(id, newPassword) > 0 ? "success" : "fail";
+    }
 }

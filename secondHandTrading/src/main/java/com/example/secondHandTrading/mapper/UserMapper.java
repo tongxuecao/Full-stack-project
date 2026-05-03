@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface UserMapper {
@@ -17,4 +18,13 @@ public interface UserMapper {
 
     @Select("SELECT * FROM [User] WHERE id = #{id}")
     User findById(@Param("id") Integer id);
+
+    @Update("UPDATE [User] SET avatar = #{avatar} WHERE id = #{id}")
+    int updateAvatar(@Param("id") Integer id, @Param("avatar") String avatar);
+
+    @Update("UPDATE [User] SET username = #{username} WHERE id = #{id}")
+    int updateUsername(@Param("id") Integer id, @Param("username") String username);
+
+    @Update("UPDATE [User] SET password = #{password} WHERE id = #{id}")
+    int updatePassword(@Param("id") Integer id, @Param("password") String password);
 }

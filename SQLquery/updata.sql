@@ -1,4 +1,4 @@
--- 1. ´´½¨ User ±í (ÓÃ»§±í)
+-- 1. ï¿½ï¿½ï¿½ï¿½ User ï¿½ï¿½ (ï¿½Ã»ï¿½ï¿½ï¿½)
 CREATE TABLE [User] (
     id INT IDENTITY(1,1) PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
@@ -6,35 +6,45 @@ CREATE TABLE [User] (
     school_id VARCHAR(50)
 );
 
--- 2. ´´½¨ Product ±í (ÉÌÆ·±í)
+-- 2. ï¿½ï¿½ï¿½ï¿½ Product ï¿½ï¿½ (ï¿½ï¿½Æ·ï¿½ï¿½)
 CREATE TABLE Product (
     id INT IDENTITY(1,1) PRIMARY KEY,
     title NVARCHAR(100) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     description NVARCHAR(500),
-    status INT DEFAULT 0, -- 0: ´ýÊÛ, 1: ½»Ò×ÖÐ, 2: ÒÑÊÛ
-    seller_id INT         -- Âô¼ÒID
+    status INT DEFAULT 0, -- 0: ï¿½ï¿½ï¿½ï¿½, 1: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, 2: ï¿½ï¿½ï¿½ï¿½
+    seller_id INT         -- ï¿½ï¿½ï¿½ï¿½ID
 );
 
--- 3. Ö±½ÓÈûÈëÒ»Ìõ²âÊÔÊý¾Ý£¡(Õâ¾ÍÊ¡È¥ÁËÄãÊÖ¶¯ÌîÊý¾ÝµÄÂé·³)
+-- 3. Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½(ï¿½ï¿½ï¿½Ê¡È¥ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ýµï¿½ï¿½é·³)
 INSERT INTO Product (title, price, description, status, seller_id) 
-VALUES (N'²âÊÔ¶þÊÖ×ÔÐÐ³µ', 150.00, N'¾Å³ÉÐÂ£¬ÆÚÖÐ¿¼ÊÔ¸´Ï°´ú²½×¨ÓÃ', 0, 1);
---ÐÂ¼Óbuyer_id
--- ÔÊÐíÎª¿Õ£¬ÒòÎªÉÌÆ·¸Õ·¢²¼Ê±»¹Ã»ÓÐÈËÂò
+VALUES (N'ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð³ï¿½', 150.00, N'ï¿½Å³ï¿½ï¿½Â£ï¿½ï¿½ï¿½ï¿½Ð¿ï¿½ï¿½Ô¸ï¿½Ï°ï¿½ï¿½ï¿½ï¿½×¨ï¿½ï¿½', 0, 1);
+--ï¿½Â¼ï¿½buyer_id
+-- ï¿½ï¿½ï¿½ï¿½Îªï¿½Õ£ï¿½ï¿½ï¿½Îªï¿½ï¿½Æ·ï¿½Õ·ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 ALTER TABLE Product ADD buyer_id INT NULL;
--- È·±£ÄãµÄÓÃ»§±íÀïÓÐÕâÐ©ºËÐÄ×Ö¶Î
+-- È·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð©ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶ï¿½
 ALTER TABLE [User] ADD phone VARCHAR(20) NULL;
 ALTER TABLE Product ADD category NVARCHAR(50) NULL;
 
--- 1. ´´½¨ÉÌÆ·Í¼Æ¬±í
+-- 1. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·Í¼Æ¬ï¿½ï¿½
 CREATE TABLE ProductImage (
     id INT PRIMARY KEY IDENTITY(1,1),
-    product_id INT NOT NULL,          -- ¹ØÁªÉÌÆ·µÄÖ÷¼ü
-    image_url VARCHAR(255) NOT NULL,  -- Í¼Æ¬µÄ·ÃÎÊÂ·¾¶
-    sort_order INT DEFAULT 0          -- Í¼Æ¬ÅÅÐò£¨¿ÉÑ¡£¬ÓÃÓÚÖ¸¶¨ÄÄÕÅÊÇ·âÃæ£©
+    product_id INT NOT NULL,          -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    image_url VARCHAR(255) NOT NULL,  -- Í¼Æ¬ï¿½Ä·ï¿½ï¿½ï¿½Â·ï¿½ï¿½
+    sort_order INT DEFAULT 0          -- Í¼Æ¬ï¿½ï¿½ï¿½ò£¨¿ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½æ£©
 );
 
--- 2. (¿ÉÑ¡) ½¨Á¢Íâ¼üÔ¼Êø£¬±£Ö¤Êý¾ÝÒ»ÖÂÐÔ
-ALTER TABLE ProductImage 
-ADD CONSTRAINT FK_Product_Image 
+-- 2. (ï¿½ï¿½Ñ¡) ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½
+ALTER TABLE ProductImage
+ADD CONSTRAINT FK_Product_Image
 FOREIGN KEY (product_id) REFERENCES Product(id) ON DELETE CASCADE;
+
+-- Add avatar column for user profile picture
+ALTER TABLE [User] ADD avatar VARCHAR(255) NULL;
+
+-- Favorite (wishlist) table
+CREATE TABLE Favorite (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL
+);

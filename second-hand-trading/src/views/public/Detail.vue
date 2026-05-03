@@ -64,7 +64,16 @@
             >
               {{ product.status === 1 ? '已被抢走啦' : '立即购买' }}
             </el-button>
-            <el-button size="large" icon="Star" plain>收藏</el-button>
+            <el-button
+              v-if="isLoggedIn && currentUser.id !== product.sellerId"
+              size="large"
+              :icon="isFav ? StarFilled : Star"
+              :type="isFav ? 'warning' : 'default'"
+              plain
+              @click="toggleFavorite"
+            >
+              {{ isFav ? '已收藏' : '收藏' }}
+            </el-button>
           </div>
         </div>
       </el-col>
@@ -76,6 +85,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Star, StarFilled } from '@element-plus/icons-vue'
 import axios from 'axios'
 
 const route = useRoute()
@@ -91,23 +101,61 @@ const currentUser = computed(() => {
 })
 const isLoggedIn = computed(() => !!currentUser.value)
 
+const isFav = ref(false)
+
 const fetchDetail = async () => {
   loading.value = true
   const id = route.params.id
   try {
-    // 1. 先获取商品基础信息
-    // 注意：你需要在后端 Controller 补充一个根据 ID 查询单个商品的接口
     const res = await axios.get(`http://localhost:8080/api/products/detail/${id}`)
     product.value = res.data
 
-    // 2. 拿到商品后，根据 sellerId 去查卖家的学号和手机号
-    // 这要求后端 UserController 也要补一个根据 ID 查 User 详情的接口
     const sellerRes = await axios.get(`http://localhost:8080/api/users/info/${product.value.sellerId}`)
     seller.value = sellerRes.data
+
+    if (currentUser.value) {
+      checkFavorite()
+    }
   } catch (error) {
     ElMessage.error('获取详情失败，请检查后端接口')
   } finally {
     loading.value = false
+  }
+}
+
+const checkFavorite = async () => {
+  try {
+    const res = await axios.get('http://localhost:8080/api/favorites/check', {
+      params: { userId: currentUser.value.id, productId: product.value.id }
+    })
+    isFav.value = res.data
+  } catch (e) {
+    // ignore
+  }
+}
+
+const toggleFavorite = async () => {
+  try {
+    if (isFav.value) {
+      await axios.delete('http://localhost:8080/api/favorites/remove', {
+        params: { userId: currentUser.value.id, productId: product.value.id }
+      })
+      isFav.value = false
+      ElMessage.success('已取消收藏')
+    } else {
+      const res = await axios.post('http://localhost:8080/api/favorites/add', null, {
+        params: { userId: currentUser.value.id, productId: product.value.id }
+      })
+      if (res.data === 'already') {
+        isFav.value = true
+        ElMessage.info('已经收藏过了')
+      } else {
+        isFav.value = true
+        ElMessage.success('收藏成功')
+      }
+    }
+  } catch (e) {
+    ElMessage.error('操作失败')
   }
 }
 
@@ -178,16 +226,17 @@ onMounted(fetchDetail)
 }
 
 .seller-card {
-  background: #fdf6ec;
-  border: 1px solid #faecd8;
+  background: var(--el-color-warning-light-9);
+  border: 1px solid var(--el-color-warning-light-7);
   border-radius: 8px;
   padding: 20px;
+  transition: background 0.3s, border-color 0.3s;
 }
 .seller-header {
   font-weight: bold;
   margin-bottom: 10px;
-  color: #e6a23c;
-  border-bottom: 1px solid #faecd8;
+  color: var(--el-color-warning);
+  border-bottom: 1px solid var(--el-color-warning-light-7);
   padding-bottom: 10px;
 }
 .seller-body p {

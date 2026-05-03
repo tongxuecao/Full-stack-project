@@ -17,9 +17,10 @@
     <div v-loading="loading" style="min-height: 300px;">
       <el-row :gutter="20" v-if="searchResults.length > 0">
         <el-col :span="6" v-for="item in searchResults" :key="item.id" style="margin-bottom: 20px;">
-          <ProductCard 
-            :product="item" 
-            :currentUser="currentUser" 
+          <ProductCard
+            :product="item"
+            :currentUser="currentUser"
+            :favoritedIds="favoritedIds"
             @buy="handleBuy"
             @go-detail="handleGoDetail"
           />
@@ -49,11 +50,25 @@ const router = useRouter()
 const searchResults = ref([])
 const loading = ref(false)
 const currentKeyword = ref('')
+const favoritedIds = ref([])
 
-// 获取当前登录用户（用于传给 ProductCard 判断是否显示“我的发布”）
+// 获取当前登录用户（用于传给 ProductCard 判断是否显示"我的发布"）
 const currentUser = computed(() => {
   const user = localStorage.getItem('user')
   return user ? JSON.parse(user) : null
+})
+
+const fetchFavoritedIds = () => {
+  if (!currentUser.value) return
+  axios.get('http://localhost:8080/api/favorites/ids', {
+    params: { userId: currentUser.value.id }
+  }).then(res => {
+    favoritedIds.value = res.data
+  }).catch(() => {})
+}
+
+onMounted(() => {
+  fetchFavoritedIds()
 })
 
 // 核心拉取数据的逻辑

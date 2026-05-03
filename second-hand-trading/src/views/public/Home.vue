@@ -1,6 +1,6 @@
 <template>
   <div class="home-container">
-    <div class="banner">
+    <div class="banner" :class="{ 'banner-dark': isDark }">
       <h2>发现校园好物</h2>
       <p>让闲置物品重新发光，安全便捷的校内交易</p>
     </div>
@@ -17,10 +17,11 @@
     <div v-loading="loading" style="min-height: 300px;">
       <el-row :gutter="20" v-if="filteredProducts.length > 0">
         <el-col :span="6" v-for="item in filteredProducts" :key="item.id" style="margin-bottom: 20px;">
-          <ProductCard 
-            :product="item" 
-            :currentUser="currentUser" 
-            @buy="handleBuy" 
+          <ProductCard
+            :product="item"
+            :currentUser="currentUser"
+            :favoritedIds="favoritedIds"
+            @buy="handleBuy"
             @go-detail="handleGoDetail"
           />
         </el-col>
@@ -43,18 +44,30 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import axios from 'axios'
-// 确保路径正确指向你的组件文件夹
 import ProductCard from '../../components/ProductCard.vue'
 
 const router = useRouter()
 const activeTab = ref('all')
 const productList = ref([])
 const currentUser = ref(null)
+const favoritedIds = ref([])
 const loading = ref(false)
+const isDark = ref(document.documentElement.classList.contains('dark'))
+
+let observer = null
+onMounted(() => {
+  observer = new MutationObserver(() => {
+    isDark.value = document.documentElement.classList.contains('dark')
+  })
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+})
+onUnmounted(() => {
+  observer?.disconnect()
+})
 
 const currentPage = ref(1)
 const pageSize = ref(8) // 每页展示 8 条数据
@@ -71,9 +84,19 @@ onMounted(() => {
   const userStr = localStorage.getItem('user')
   if (userStr) {
     currentUser.value = JSON.parse(userStr)
+    fetchFavoritedIds()
   }
-  loadPageData() // 页面初始化时拉取第一页数据
+  loadPageData()
 })
+
+const fetchFavoritedIds = () => {
+  if (!currentUser.value) return
+  axios.get('http://localhost:8080/api/favorites/ids', {
+    params: { userId: currentUser.value.id }
+  }).then(res => {
+    favoritedIds.value = res.data
+  }).catch(() => {})
+}
 
 // 🌟 核心：向后端请求分页数据
 const loadPageData = () => {
@@ -150,9 +173,16 @@ const handleGoDetail = (id) => {
   border-radius: 12px;
   padding: 40px 20px;
   text-align: center;
-  color: white;
+  color: #fff;
   margin-bottom: 25px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: background 0.4s, color 0.3s, box-shadow 0.3s;
+}
+
+.banner-dark {
+  background: linear-gradient(120deg, #1e3a2f 0%, #1e3848 100%) !important;
+  color: #d0d5db;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.35);
 }
 .banner h2 { 
   margin: 0 0 10px 0; 
@@ -164,11 +194,12 @@ const handleGoDetail = (id) => {
   font-size: 16px; 
   opacity: 0.9; 
 }
-.category-tabs { 
-  margin-bottom: 20px; 
-  background: #fff;
+.category-tabs {
+  margin-bottom: 20px;
+  background: var(--el-bg-color);
   padding: 5px 20px 0;
   border-radius: 8px;
+  transition: background 0.3s;
 }
 .pagination-wrapper {
   display: flex;
