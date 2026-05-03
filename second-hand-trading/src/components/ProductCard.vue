@@ -5,12 +5,21 @@
     @click="$emit('go-detail', product.id)"
   >
     
-    <div style="height: 150px; background-color: #f0f2f5; position: relative; display: flex; align-items: center; justify-content: center;">
+    <div style="height: 150px; background-color: #f0f2f5; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+      
+      <el-image 
+        v-if="product.images && product.images.length > 0" 
+        :src="product.images[0].imageUrl" 
+        fit="cover" 
+        style="width: 100%; height: 100%; position: absolute; inset: 0;"
+      />
+      
       <div v-if="product.status === 1" 
-           style="position: absolute; inset: 0; background: rgba(0,0,0,0.5); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; z-index: 10;">
+          style="position: absolute; inset: 0; background: rgba(0,0,0,0.5); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; z-index: 10;">
         已 售 出
       </div>
-      <span v-else style="color: #999;">暂无图片</span>
+      
+      <span v-else-if="!product.images || product.images.length === 0" style="color: #999; z-index: 1;">暂无图片</span>
     </div>
 
     <div style="padding: 14px;">

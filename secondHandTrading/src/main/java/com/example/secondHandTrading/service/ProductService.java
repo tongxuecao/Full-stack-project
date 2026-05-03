@@ -58,11 +58,17 @@ public class ProductService {
 
     // 5. 搜索业务逻辑
     public List<Product> search(String keyword) {
-        // 业务判断：如果没传关键词，或者只有空格，就直接返回所有待售商品
+        List<Product> list;
         if (keyword == null || keyword.trim().isEmpty()) {
-            return productMapper.findAllActive();
+            list = productMapper.findAllActive();
+        } else {
+            list = productMapper.searchProducts(keyword.trim());
         }
-        return productMapper.searchProducts(keyword.trim());
+        // 新增：给搜索结果里的每个商品查图片
+        for (Product product : list) {
+            product.setImages(productImageMapper.findByProductId(product.getId()));
+        }
+        return list;
     }
 
     // 6. 下架业务逻辑
@@ -80,11 +86,12 @@ public class ProductService {
     }
 
     public PageInfo<Product> getProductPage(int pageNum, int pageSize, String category) {
-        // 核心魔法：这一行会告诉 MyBatis，紧接着的下一个查询需要进行分页
         PageHelper.startPage(pageNum, pageSize);
-        // 执行查询
         List<Product> list = productMapper.findProductsByCategory(category);
-        // 用 PageInfo 包装一下结果，它里面包含了总页数、总条数等丰富信息
+        // 新增：给列表里的每个商品查询并附上图片
+        for (Product product : list) {
+            product.setImages(productImageMapper.findByProductId(product.getId()));
+        }
         return new PageInfo<>(list);
     }
 }

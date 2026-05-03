@@ -57,6 +57,10 @@ const handleSearch = () => {
   if (searchKeyword.value) {
     // 跳转到搜索结果页，并带上参数
     router.push({ path: '/search', query: { keyword: searchKeyword.value } })
+    searchKeyword.value = ''
+  }
+  else {
+    router.push('/') // 没有关键词也跳转到搜索页，显示空结果
   }
 }
 

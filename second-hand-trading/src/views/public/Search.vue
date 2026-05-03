@@ -21,7 +21,7 @@
             :product="item" 
             :currentUser="currentUser" 
             @buy="handleBuy"
-             
+            @go-detail="handleGoDetail"
           />
         </el-col>
       </el-row>
@@ -100,6 +100,9 @@ const handleBuy = (product) => {
     return
   }
   router.push(`/detail/${product.id}`) // 引导去详情页购买体验更好
+}
+const handleGoDetail = (id) => {
+  router.push(`/detail/${id}`)
 }
 </script>
 
