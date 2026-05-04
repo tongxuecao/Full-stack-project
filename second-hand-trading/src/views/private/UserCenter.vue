@@ -42,6 +42,10 @@
             <el-icon><Star /></el-icon>
             <span>我的收藏</span>
           </el-menu-item>
+          <el-menu-item index="/user/chats" class="menu-item-custom">
+            <el-icon><ChatDotRound /></el-icon>
+            <span>我的消息</span>
+          </el-menu-item>
           <el-divider style="margin: 8px 0;" />
           <el-menu-item index="/about" class="menu-item-custom">
             <el-icon><QuestionFilled /></el-icon>
@@ -49,12 +53,13 @@
           </el-menu-item>
         </el-menu>
 
-        <div style="flex: 1;"></div>
+        
         <div class="logout-section">
           <el-button type="danger" plain style="width: 100%;" @click="handleLogout">
             <el-icon><SwitchButton /></el-icon> 退出登录
           </el-button>
         </div>
+        <div style="flex: 1;"></div>
       </el-aside>
 
       <el-main class="center-main">
@@ -99,7 +104,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Sell, ShoppingCart, QuestionFilled, Star, SwitchButton } from '@element-plus/icons-vue'
+import { Sell, ShoppingCart, QuestionFilled, Star, SwitchButton, ChatDotRound } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import axios from 'axios'
 
@@ -108,6 +113,13 @@ const router = useRouter()
 const currentUser = ref(null)
 
 const activeMenu = computed(() => route.path)
+const handleSelect = (index) => {
+  console.log('UserCenter menu select, index:', index)
+  router.push(index).catch(err => {
+    console.error('menu router push failed:', err)
+    window.location.href = index
+  })
+}
 const avatarDefaultText = computed(() => {
   return currentUser.value?.username?.charAt(0)?.toUpperCase() || 'U'
 })

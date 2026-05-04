@@ -48,3 +48,14 @@ CREATE TABLE Favorite (
     user_id INT NOT NULL,
     product_id INT NOT NULL
 );
+
+-- Chat messages for buyer-seller communication
+CREATE TABLE ChatMessage (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    product_id INT NOT NULL,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    content NVARCHAR(500) NOT NULL,
+    create_time DATETIME DEFAULT GETDATE(),
+    is_read INT DEFAULT 0
+);

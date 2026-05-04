@@ -27,7 +27,8 @@ const routes = [
       // 子路由不需要加 /，访问路径为 /user/published
       { path: 'published', name: 'MyPublished', component: () => import('../views/private/MyPublished.vue') },
       { path: 'orders', name: 'MyOrders', component: () => import('../views/private/MyOrders.vue') },
-      { path: 'favorites', name: 'MyFavorites', component: () => import('../views/private/MyFavorites.vue') }
+      { path: 'favorites', name: 'MyFavorites', component: () => import('../views/private/MyFavorites.vue') },
+      { path: 'chats', name: 'MyChats', component: () => import('../views/private/MyChats.vue') }
     ]
   },
 

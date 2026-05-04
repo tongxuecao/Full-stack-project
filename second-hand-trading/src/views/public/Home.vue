@@ -22,7 +22,7 @@
             :currentUser="currentUser"
             :favoritedIds="favoritedIds"
             @buy="handleBuy"
-            @go-detail="handleGoDetail"
+            @goDetail="handleGoDetail"
           />
         </el-col>
       </el-row>
@@ -163,7 +163,11 @@ const handleBuy = (product) => {
 
 // 跳转详情页逻辑
 const handleGoDetail = (id) => {
-  router.push(`/detail/${id}`)
+  console.log('Home handleGoDetail, id:', id)
+  router.push('/detail/' + id).catch(err => {
+    console.error('router push failed:', err)
+    window.location.href = '/detail/' + id
+  })
 }
 </script>
 

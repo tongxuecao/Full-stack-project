@@ -81,7 +81,11 @@ const handleRemove = (productId) => {
 }
 
 const goDetail = (id) => {
-  router.push(`/detail/${id}`)
+  console.log('MyFavorites goDetail, id:', id)
+  router.push('/detail/' + id).catch(err => {
+    console.error('router push failed:', err)
+    window.location.href = '/detail/' + id
+  })
 }
 
 onMounted(fetchFavorites)

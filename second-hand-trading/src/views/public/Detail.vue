@@ -46,7 +46,13 @@
 
       <el-col :span="12">
         <div class="product-info">
-          <el-tag type="primary" effect="dark" style="margin-bottom: 10px;">{{ product.category || '其他闲置' }}</el-tag>
+          <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px;">
+            <el-tag type="primary" effect="dark">{{ product.category || '其他闲置' }}</el-tag>
+            <el-tag v-if="isLoggedIn && currentUser.id === product.sellerId" type="warning" effect="dark">我的发布</el-tag>
+            <el-tag v-if="product.status === 0" type="success" effect="plain">待售中</el-tag>
+            <el-tag v-else-if="product.status === 1" type="danger" effect="plain">已售出</el-tag>
+            <el-tag v-else-if="product.status === -1" type="info" effect="plain">已下架</el-tag>
+          </div>
           <h1 class="title">{{ product.title }}</h1>
           
           <div class="price-box">
@@ -73,16 +79,34 @@
             </div>
           </div>
 
+          <div v-if="isLoggedIn && currentUser.id === product.sellerId && product.status === 0" class="seller-actions" style="margin-top: 20px;">
+            <el-alert title="这是您发布的商品" type="warning" show-icon :closable="false" style="margin-bottom: 12px;" />
+            <el-button type="danger" plain size="large" @click="handleUnlist" style="width: 200px;">
+              撤销上架
+            </el-button>
+          </div>
+
           <div class="actions" style="margin-top: 30px;">
-            <el-button 
-              type="success" 
-              size="large" 
-              icon="ShoppingCart" 
-              :disabled="product.status === 1"
+            <el-button
+              v-if="!isLoggedIn || currentUser.id !== product.sellerId"
+              type="success"
+              size="large"
+              icon="ShoppingCart"
+              :disabled="product.status !== 0"
               @click="handleBuy"
               style="width: 200px; height: 50px; font-size: 18px;"
             >
-              {{ product.status === 1 ? '已被抢走啦' : '立即购买' }}
+              {{ product.status === 1 ? '已被抢走啦' : product.status === -1 ? '已下架' : '立即购买' }}
+            </el-button>
+            <el-button
+              v-if="isLoggedIn && currentUser.id !== product.sellerId"
+              type="primary"
+              size="large"
+              plain
+              icon="ChatDotRound"
+              @click="showChat = true"
+            >
+              联系卖家
             </el-button>
             <el-button
               v-if="isLoggedIn && currentUser.id !== product.sellerId"
@@ -98,6 +122,15 @@
         </div>
       </el-col>
     </el-row>
+
+    <ChatWindow
+      :visible="showChat"
+      :productId="product?.id"
+      :otherUserId="product?.sellerId"
+      :otherUserName="seller?.username"
+      :currentUser="currentUser"
+      @close="showChat = false"
+    />
   </div>
 </template>
 
@@ -105,14 +138,16 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Star, StarFilled, Picture } from '@element-plus/icons-vue'
+import { Star, StarFilled, Picture, ChatDotRound } from '@element-plus/icons-vue'
 import axios from 'axios'
+import ChatWindow from '../../components/ChatWindow.vue'
 
 const route = useRoute()
 const router = useRouter()
 const loading = ref(false)
 const product = ref(null)
-const seller = ref({}) // 存放卖家详细信息
+const seller = ref({})
+const showChat = ref(false)
 
 // 获取当前登录状态
 const currentUser = computed(() => {
@@ -206,6 +241,28 @@ const handleBuy = () => {
       }
     })
   })
+}
+
+const handleUnlist = () => {
+  ElMessageBox.confirm('确定要下架该商品吗？下架后其他用户将无法看到。', '确认下架', {
+    confirmButtonText: '确定下架',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(async () => {
+    try {
+      const res = await axios.delete(`http://localhost:8080/api/products/delete/${product.value.id}`, {
+        params: { userId: currentUser.value.id }
+      })
+      if (res.data === 'success') {
+        ElMessage.success('商品已成功下架')
+        product.value.status = -1
+      } else {
+        ElMessage.error('下架失败，请重试')
+      }
+    } catch (e) {
+      ElMessage.error('网络请求失败')
+    }
+  }).catch(() => {})
 }
 
 onMounted(fetchDetail)
