@@ -7,19 +7,39 @@
 
     <el-row :gutter="40" v-if="product">
       <el-col :span="12">
-        <div class="image-gallery">
-          <div class="main-image">
+        <div class="product-gallery">
+          <div class="main-image-wrapper">
             <span v-if="product.status === 1" class="sold-out-badge">已 售 出</span>
-            
-            <el-carousel v-if="product.images && product.images.length > 0" height="400px" trigger="click">
-              <el-carousel-item v-for="img in product.images" :key="img.id">
-                <el-image :src="img.imageUrl" fit="contain" style="width: 100%; height: 100%; background-color: #f5f7fa;" />
-              </el-carousel-item>
-            </el-carousel>
 
-            <div v-else style="background-color: #f5f7fa; width: 100%; height: 400px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
-              <span style="color: #909399; font-size: 20px;">暂无实物图片</span>
+            <el-image
+              v-if="product.images && product.images.length > 0"
+              :src="product.images[0].imageUrl"
+              :preview-src-list="previewList"
+              :initial-index="0"
+              fit="cover"
+              class="main-image"
+              hide-on-click-modal
+              preview-teleported
+            />
+
+            <div v-else class="no-image-placeholder">
+              <el-icon :size="40"><Picture /></el-icon>
+              <span>暂无图片</span>
             </div>
+          </div>
+
+          <div v-if="product.images && product.images.length > 1" class="thumbnail-list">
+            <el-image
+              v-for="(img, index) in product.images.slice(1)"
+              :key="img.id"
+              :src="img.imageUrl"
+              :preview-src-list="previewList"
+              :initial-index="index + 1"
+              fit="cover"
+              class="thumb-item"
+              hide-on-click-modal
+              preview-teleported
+            />
           </div>
         </div>
       </el-col>
@@ -85,7 +105,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Star, StarFilled } from '@element-plus/icons-vue'
+import { Star, StarFilled, Picture } from '@element-plus/icons-vue'
 import axios from 'axios'
 
 const route = useRoute()
@@ -102,6 +122,11 @@ const currentUser = computed(() => {
 const isLoggedIn = computed(() => !!currentUser.value)
 
 const isFav = ref(false)
+
+const previewList = computed(() => {
+  if (!product.value?.images) return []
+  return product.value.images.map(img => img.imageUrl)
+})
 
 const fetchDetail = async () => {
   loading.value = true
@@ -192,20 +217,74 @@ onMounted(fetchDetail)
   margin: 0 auto;
   padding: 20px;
 }
-.main-image {
+.product-gallery {
+  width: 100%;
+}
+
+.main-image-wrapper {
   position: relative;
-  overflow: hidden;
   border-radius: 12px;
+  overflow: hidden;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
+
+.main-image {
+  width: 100%;
+  height: 400px;
+  display: block;
+}
+
+.main-image :deep(img) {
+  cursor: zoom-in;
+}
+
 .sold-out-badge {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0,0,0,0.5);
-  color: white;
+  color: #fff;
   display: flex;
   align-items: center; justify-content: center;
   font-size: 30px; font-weight: bold; z-index: 10;
+}
+
+.thumbnail-list {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.thumb-item {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.thumb-item:hover {
+  border-color: var(--el-color-primary);
+  transform: scale(1.05);
+}
+
+.thumb-item :deep(img) {
+  cursor: zoom-in;
+}
+
+.no-image-placeholder {
+  width: 100%;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--el-fill-color-light);
+  border-radius: 12px;
+  color: var(--el-text-color-secondary);
+  font-size: 16px;
 }
 .title {
   font-size: 28px;

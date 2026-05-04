@@ -156,6 +156,12 @@ const handleAvatarChange = async (e) => {
   const file = e.target.files?.[0]
   if (!file) return
 
+  if (file.size > 5 * 1024 * 1024) {
+    ElMessage.error('头像图片不能超过 5MB')
+    avatarInputRef.value.value = ''
+    return
+  }
+
   const formData = new FormData()
   formData.append('file', file)
 
@@ -166,6 +172,10 @@ const handleAvatarChange = async (e) => {
     const avatarUrl = uploadRes.data
     if (avatarUrl === 'error') {
       ElMessage.error('头像上传失败')
+      return
+    }
+    if (avatarUrl === 'size_exceeded') {
+      ElMessage.error('头像图片不能超过 5MB')
       return
     }
 

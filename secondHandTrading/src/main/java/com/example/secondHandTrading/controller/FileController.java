@@ -13,9 +13,11 @@ public class FileController {
 
     @PostMapping("/upload")
     public String uploadFile(@RequestParam("file") MultipartFile file) {
-        // 如果文件是空的，直接返回错误
         if (file.isEmpty()) {
             return "error";
+        }
+        if (file.getSize() > 5 * 1024 * 1024) {
+            return "size_exceeded";
         }
 
         try {

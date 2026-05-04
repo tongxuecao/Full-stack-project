@@ -26,13 +26,14 @@
             list-type="picture-card"
             :on-success="handleUploadSuccess"
             :on-remove="handleRemove"
+            :before-upload="beforeUpload"
             multiple
             :limit="5"
           >
             <el-icon><Plus /></el-icon>
           </el-upload>
           <div style="font-size: 12px; color: #999; margin-top: 5px; width: 100%;">
-            最多上传 5 张图片，单张不超过 2MB
+            最多上传 5 张图片，单张不超过 5MB
           </div>
         </el-form-item>
 
@@ -114,12 +115,22 @@ const rules = {
   description: [{ required: true, message: '请简单描述一下商品', trigger: 'blur' }],
   category: [{ required: true, message: '请选择商品分类', trigger: 'change' }]
 }
-// 新增：处理图片上传成功的逻辑
+const beforeUpload = (file) => {
+  const isLt5M = file.size / 1024 / 1024 < 5
+  if (!isLt5M) {
+    ElMessage.error('图片大小不能超过 5MB')
+  }
+  return isLt5M
+}
+
 const handleUploadSuccess = (response, uploadFile) => {
+  if (response === 'size_exceeded') {
+    ElMessage.error('图片大小不能超过 5MB')
+    return
+  }
   if (response !== 'error') {
-    imageUrls.value.push(response) // 把后端返回的 URL 塞进数组
-    // 把 URL 存到 uploadFile 对象里，方便后面删除时用到
-    uploadFile.url = response 
+    imageUrls.value.push(response)
+    uploadFile.url = response
   } else {
     ElMessage.error('图片上传失败')
   }

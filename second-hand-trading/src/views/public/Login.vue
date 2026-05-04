@@ -48,7 +48,6 @@ const router = useRouter()
 const route = useRoute()
 const loginForm = ref(null)
 const loading = ref(false)
-
 const form = ref({ username: '', password: '', captcha: '' })
 const validCaptcha = ref('') // 存储真实的验证码用于比对
 const captchaCanvas = ref(null)
@@ -61,8 +60,6 @@ const rules = {
 }
 
 // 登录逻辑
-
-
 const handleLogin = () => {
   loginForm.value.validate((valid) => {
     if (!valid) return

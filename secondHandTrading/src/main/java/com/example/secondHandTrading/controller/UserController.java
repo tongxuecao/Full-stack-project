@@ -64,6 +64,9 @@ public class UserController {
         if (file.isEmpty()) {
             return "error";
         }
+        if (file.getSize() > 5 * 1024 * 1024) {
+            return "size_exceeded";
+        }
         try {
             String originalFilename = file.getOriginalFilename();
             String extension = "";
