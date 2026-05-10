@@ -69,7 +69,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Shop, Search, Plus, Moon, Sunny } from '@element-plus/icons-vue'
 
@@ -77,13 +77,22 @@ const router = useRouter()
 const route = useRoute()
 const searchKeyword = ref('')
 
-const isLoggedIn = computed(() => !!localStorage.getItem('user'))
+const isLoggedIn = ref(false)
+const currentUser = ref(null)
 
-const currentUser = computed(() => {
+const refreshUser = () => {
   const userStr = localStorage.getItem('user')
-  if (userStr) return JSON.parse(userStr)
-  return null
-})
+  if (userStr) {
+    currentUser.value = JSON.parse(userStr)
+    isLoggedIn.value = true
+  } else {
+    currentUser.value = null
+    isLoggedIn.value = false
+  }
+}
+refreshUser()
+
+watch(() => route.fullPath, () => refreshUser())
 
 const isDark = ref(document.documentElement.classList.contains('dark'))
 

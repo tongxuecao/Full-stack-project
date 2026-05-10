@@ -48,13 +48,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watch, nextTick } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { User, Lock, Iphone } from '@element-plus/icons-vue'
 import axios from 'axios' // 记得顶部引入
 
 const router = useRouter()
+const route = useRoute()
 const registerForm = ref(null)
 const loading = ref(false)
 
@@ -64,6 +65,15 @@ const form = ref({
   schoolId: '',
   password: '',
   confirmPassword: ''
+})
+
+const resetForm = () => {
+  form.value = { username: '', phone: '', schoolId: '', password: '', confirmPassword: '' }
+  nextTick(() => registerForm.value?.resetFields())
+}
+
+watch(() => route.path, (path) => {
+  if (path === '/register') resetForm()
 })
 
 // 自定义校验逻辑：两次密码是否一致

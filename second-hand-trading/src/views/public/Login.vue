@@ -38,19 +38,29 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { User, Lock } from '@element-plus/icons-vue' // 如果图标没显示，确保你安装了 @element-plus/icons-vue
-import axios from 'axios' // 记得顶部引入
+import { User, Lock } from '@element-plus/icons-vue'
+import axios from 'axios'
 
 const router = useRouter()
 const route = useRoute()
 const loginForm = ref(null)
 const loading = ref(false)
 const form = ref({ username: '', password: '', captcha: '' })
-const validCaptcha = ref('') // 存储真实的验证码用于比对
+const validCaptcha = ref('')
 const captchaCanvas = ref(null)
+
+const resetForm = () => {
+  form.value = { username: '', password: '', captcha: '' }
+  loginForm.value?.resetFields()
+  drawCaptcha()
+}
+
+watch(() => route.path, (path) => {
+  if (path === '/login') resetForm()
+})
 
 // 表单校验规则
 const rules = {
