@@ -59,3 +59,14 @@ CREATE TABLE ChatMessage (
     create_time DATETIME DEFAULT GETDATE(),
     is_read INT DEFAULT 0
 );
+
+
+DELETE FROM ChatMessage;
+DELETE FROM Favorite;
+DELETE FROM ProductImage;
+DELETE FROM Product;
+DELETE FROM [User];
+INSERT INTO [User] (username, password, phone, school_id, avatar) VALUES
+(N'张三', '123456', '13800001001', '20240001', 'https://api.dicebear.com/7.x/initials/svg?seed=ZS&backgroundColor=409eff'),
+(N'李四', '123456', '13800001002', '20240002', 'https://api.dicebear.com/7.x/initials/svg?seed=LS&backgroundColor=67c23a'),
+(N'王五', '123456', '13800001003', '20240003', 'https://api.dicebear.com/7.x/initials/svg?seed=WW&backgroundColor=e6a23c')
