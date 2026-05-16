@@ -6,7 +6,7 @@
     </el-breadcrumb>
 
     <el-row :gutter="40" v-if="product">
-      <el-col :span="12">
+      <el-col :xs="24" :md="12">
         <div class="product-gallery">
           <div class="main-image-wrapper">
             <span v-if="product.status === 1" class="sold-out-badge">已 售 出</span>
@@ -44,7 +44,7 @@
         </div>
       </el-col>
 
-      <el-col :span="12">
+      <el-col :xs="24" :md="12" style="margin-top: 15px;">
         <div class="product-info">
           <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px;">
             <el-tag type="primary" effect="dark">{{ product.category || '其他闲置' }}</el-tag>
@@ -167,10 +167,10 @@ const fetchDetail = async () => {
   loading.value = true
   const id = route.params.id
   try {
-    const res = await axios.get(`http://localhost:8080/api/products/detail/${id}`)
+    const res = await axios.get(`http://10.240.165.107:8080/api/products/detail/${id}`)
     product.value = res.data
 
-    const sellerRes = await axios.get(`http://localhost:8080/api/users/info/${product.value.sellerId}`)
+    const sellerRes = await axios.get(`http://10.240.165.107:8080/api/users/info/${product.value.sellerId}`)
     seller.value = sellerRes.data
 
     if (currentUser.value) {
@@ -185,7 +185,7 @@ const fetchDetail = async () => {
 
 const checkFavorite = async () => {
   try {
-    const res = await axios.get('http://localhost:8080/api/favorites/check', {
+    const res = await axios.get('http://10.240.165.107:8080/api/favorites/check', {
       params: { userId: currentUser.value.id, productId: product.value.id }
     })
     isFav.value = res.data
@@ -197,13 +197,13 @@ const checkFavorite = async () => {
 const toggleFavorite = async () => {
   try {
     if (isFav.value) {
-      await axios.delete('http://localhost:8080/api/favorites/remove', {
+      await axios.delete('http://10.240.165.107:8080/api/favorites/remove', {
         params: { userId: currentUser.value.id, productId: product.value.id }
       })
       isFav.value = false
       ElMessage.success('已取消收藏')
     } else {
-      const res = await axios.post('http://localhost:8080/api/favorites/add', null, {
+      const res = await axios.post('http://10.240.165.107:8080/api/favorites/add', null, {
         params: { userId: currentUser.value.id, productId: product.value.id }
       })
       if (res.data === 'already') {
@@ -232,7 +232,7 @@ const handleBuy = () => {
   }
 
   ElMessageBox.confirm(`确认以 ￥${product.value.price} 的价格购买吗？`, '交易确认').then(() => {
-    axios.post(`http://localhost:8080/api/products/buy/${product.value.id}`, null, {
+    axios.post(`http://10.240.165.107:8080/api/products/buy/${product.value.id}`, null, {
       params: { buyerId: currentUser.value.id }
     }).then(res => {
       if (res.data === 'success') {
@@ -250,7 +250,7 @@ const handleUnlist = () => {
     type: 'warning',
   }).then(async () => {
     try {
-      const res = await axios.delete(`http://localhost:8080/api/products/delete/${product.value.id}`, {
+      const res = await axios.delete(`http://10.240.165.107:8080/api/products/delete/${product.value.id}`, {
         params: { userId: currentUser.value.id }
       })
       if (res.data === 'success') {

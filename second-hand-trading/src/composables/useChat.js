@@ -10,7 +10,7 @@ export function useChat(userId) {
     if (!userId || connecting.value || connected.value) return
     connecting.value = true
 
-    import('@stomp/stompjs').then(({ Client }) => {
+    import('@stomp/stompjs').then(({ Client }) => {//初始化 Client 和配置参数
       stompClient = new Client({
         brokerURL: 'ws://localhost:8080/ws-native',
         reconnectDelay: 5000,
@@ -41,7 +41,7 @@ export function useChat(userId) {
           connecting.value = false
         }
       })
-      stompClient.activate()
+      stompClient.activate()//向后端发起连接请求
     }).catch(e => {
       console.error('Failed to load STOMP client:', e.message)
       connecting.value = false
@@ -53,7 +53,7 @@ export function useChat(userId) {
       console.warn('STOMP not connected')
       return false
     }
-    stompClient.publish({
+    stompClient.publish({//通过 STOMP 协议的 publish 动作发送到后端的 /app/chat.send 目的地。
       destination: '/app/chat.send',
       body: JSON.stringify(msg)
     })

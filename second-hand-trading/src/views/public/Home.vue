@@ -16,7 +16,7 @@
 
     <div v-loading="loading" style="min-height: 300px;">
       <el-row :gutter="20" v-if="filteredProducts.length > 0">
-        <el-col :span="6" v-for="item in filteredProducts" :key="item.id" style="margin-bottom: 20px;">
+       <el-col :xs="12" :sm="8" :md="6" v-for="item in filteredProducts" :key="item.id" style="margin-bottom: 20px;">
           <ProductCard
             :product="item"
             :currentUser="currentUser"
@@ -91,7 +91,7 @@ onMounted(() => {
 
 const fetchFavoritedIds = () => {
   if (!currentUser.value) return
-  axios.get('http://localhost:8080/api/favorites/ids', {
+  axios.get('http://10.240.165.107:8080/api/favorites/ids', {
     params: { userId: currentUser.value.id }
   }).then(res => {
     favoritedIds.value = res.data
@@ -101,7 +101,7 @@ const fetchFavoritedIds = () => {
 // 🌟 核心：向后端请求分页数据
 const loadPageData = () => {
   loading.value = true
-  axios.get('http://localhost:8080/api/products/page', {
+  axios.get('http://10.240.165.107:8080/api/products/page', {
     params: {
       pageNum: currentPage.value,
       pageSize: pageSize.value,
@@ -147,7 +147,7 @@ const handleBuy = (product) => {
       type: 'success',
     }
   ).then(() => {
-    axios.post(`http://localhost:8080/api/products/buy/${product.id}`, null, {
+    axios.post(`http://10.240.165.107:8080/api/products/buy/${product.id}`, null, {
       params: { buyerId: currentUser.value.id }
     }).then(res => {
       if (res.data === 'success') {
@@ -193,6 +193,19 @@ const handleGoDetail = (id) => {
   font-size: 32px; 
   letter-spacing: 2px;
 }
+/* 🌟 当屏幕宽度小于 768px（也就是手机设备）时，应用以下样式覆盖上面的 */
+@media (max-width: 768px) {
+  .banner {
+    padding: 20px 10px; /* 缩小内边距 */
+    margin-bottom: 15px; /* 缩小底部间距 */
+  }
+  .banner h2 {
+    font-size: 22px; /* 缩小标题字体 */
+  }
+  .banner p {
+    font-size: 14px; /* 缩小副标题字体 */
+  }
+}
 .banner p { 
   margin: 0; 
   font-size: 16px; 
@@ -210,5 +223,28 @@ const handleGoDetail = (id) => {
   justify-content: center;
   margin-top: 30px;
   padding-bottom: 20px;
+}
+@media (max-width: 768px) {
+  /* 隐藏 Element Plus 默认的左右滚动箭头 */
+  :deep(.el-tabs__nav-next), 
+  :deep(.el-tabs__nav-prev) {
+    display: none !important;
+  }
+  
+  /* 让导航区域支持原生左右滑动，且隐藏滚动条 */
+  :deep(.el-tabs__nav-wrap) {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch; /* 让苹果手机滑动更丝滑 */
+  }
+  
+  :deep(.el-tabs__nav-wrap::-webkit-scrollbar) {
+    display: none; /* 隐藏底部丑陋的滚动条 */
+  }
+
+  /* 缩小标签的内边距和字体 */
+  :deep(.el-tabs__item) {
+    padding: 0 12px !important;
+    font-size: 14px;
+  }
 }
 </style>

@@ -81,7 +81,7 @@ const handleLogin = () => {
     loading.value = true
     
     // 真实的登录请求
-    axios.post('http://localhost:8080/api/users/login', {
+    axios.post('http://10.240.165.107:8080/api/users/login', {
       username: form.value.username,
       password: form.value.password
     }).then(res => {

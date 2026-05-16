@@ -150,7 +150,7 @@ const loadUser = () => {
 
 const refreshUser = async () => {
   try {
-    const res = await axios.get(`http://localhost:8080/api/users/refresh/${currentUser.value.id}`)
+    const res = await axios.get(`http://10.240.165.107:8080/api/users/refresh/${currentUser.value.id}`)
     if (res.data) {
       localStorage.setItem('user', JSON.stringify(res.data))
       currentUser.value = res.data
@@ -178,7 +178,7 @@ const handleAvatarChange = async (e) => {
   formData.append('file', file)
 
   try {
-    const uploadRes = await axios.post('http://localhost:8080/api/files/upload', formData, {
+    const uploadRes = await axios.post('http://10.240.165.107:8080/api/files/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     const avatarUrl = uploadRes.data
@@ -191,7 +191,7 @@ const handleAvatarChange = async (e) => {
       return
     }
 
-    const updateRes = await axios.put('http://localhost:8080/api/users/avatar', {
+    const updateRes = await axios.put('http://10.240.165.107:8080/api/users/avatar', {
       id: currentUser.value.id,
       avatarUrl
     })
@@ -216,7 +216,7 @@ const handleUpdateName = async () => {
   }
   savingName.value = true
   try {
-    const res = await axios.put('http://localhost:8080/api/users/username', {
+    const res = await axios.put('http://10.240.165.107:8080/api/users/username', {
       id: currentUser.value.id,
       username: name
     })
@@ -253,7 +253,7 @@ const handleUpdatePassword = async () => {
   }
   savingPassword.value = true
   try {
-    const res = await axios.put('http://localhost:8080/api/users/password', {
+    const res = await axios.put('http://10.240.165.107:8080/api/users/password', {
       id: currentUser.value.id,
       oldPassword,
       newPassword
@@ -421,5 +421,22 @@ const handleLogout = () => {
 .fade-slide-leave-to {
   opacity: 0;
   transform: translateX(-12px);
+}
+@media (max-width: 768px) {
+  /* 让包裹容器变成上下排列，而不是左右排列 */
+  .el-container {
+    flex-direction: column; 
+    height: auto !important; /* 解除高度限制 */
+  }
+  /* 让左侧导航栏宽度变成 100% 占满全屏 */
+  .el-aside {
+    width: 100% !important;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+  }
+  /* 右侧内容区减小内边距 */
+  .el-main {
+    padding: 10px !important;
+  }
 }
 </style>

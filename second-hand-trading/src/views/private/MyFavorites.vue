@@ -52,7 +52,7 @@ const loading = ref(false)
 
 const fetchFavorites = () => {
   loading.value = true
-  axios.get('http://localhost:8080/api/favorites/list', {
+  axios.get('http://10.240.165.107:8080/api/favorites/list', {
     params: { userId: props.currentUser.id }
   }).then(res => {
     favorites.value = res.data
@@ -69,7 +69,7 @@ const handleRemove = (productId) => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    axios.delete('http://localhost:8080/api/favorites/remove', {
+    axios.delete('http://10.240.165.107:8080/api/favorites/remove', {
       params: { userId: props.currentUser.id, productId }
     }).then(res => {
       if (res.data === 'success') {

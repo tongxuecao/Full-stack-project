@@ -119,7 +119,7 @@ const handleRegister = () => {
     loading.value = true
     
     // 真实的注册请求
-    axios.post('http://localhost:8080/api/users/register', form.value)
+    axios.post('http://10.240.165.107:8080/api/users/register', form.value)
       .then(res => {
         loading.value = false
         if (res.data === 'success') {

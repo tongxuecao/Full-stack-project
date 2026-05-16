@@ -54,7 +54,7 @@ const mergedMessages = computed(() => {
 const loadHistory = async () => {
   if (!props.productId || !props.currentUser || !props.otherUserId) return
   try {
-    const res = await axios.get('http://localhost:8080/api/chat/history', {
+    const res = await axios.get('http://10.240.165.107:8080/api/chat/history', {
       params: {
         productId: props.productId,
         userId1: props.currentUser.id,
@@ -79,7 +79,7 @@ const handleSend = async () => {
     return
   }
 
-  const ok = sendMessage({
+  const ok = sendMessage({//userChat中发送信息的函数，参数是一个对象，包含了商品id、发送者id、接收者id和消息内容
     productId: props.productId,
     senderId: props.currentUser.id,
     receiverId: props.otherUserId,

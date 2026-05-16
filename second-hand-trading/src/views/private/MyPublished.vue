@@ -55,7 +55,7 @@ const goDetail = (row) => {
 }
 
 const loadMyProducts = () => {
-  axios.get('http://localhost:8080/api/products/my-published', {
+  axios.get('http://10.240.165.107:8080/api/products/my-published', {
     params: { userId: props.currentUser.id }
   }).then(res => {
     myProducts.value = res.data
@@ -68,7 +68,7 @@ const handleDelete = (id) => {
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
-    axios.delete(`http://localhost:8080/api/products/delete/${id}`, {
+    axios.delete(`http://10.240.165.107:8080/api/products/delete/${id}`, {
       params: { userId: props.currentUser.id }
     }).then(res => {
       if (res.data === 'success') {

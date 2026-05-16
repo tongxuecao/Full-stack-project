@@ -60,7 +60,7 @@ const currentUser = computed(() => {
 
 const fetchFavoritedIds = () => {
   if (!currentUser.value) return
-  axios.get('http://localhost:8080/api/favorites/ids', {
+  axios.get('http://10.240.165.107:8080/api/favorites/ids', {
     params: { userId: currentUser.value.id }
   }).then(res => {
     favoritedIds.value = res.data
@@ -83,7 +83,7 @@ const fetchSearchResults = (keyword) => {
   currentKeyword.value = keyword
 
   // 调用后端已经写好的 search 接口
-  axios.get('http://localhost:8080/api/products/search', {
+  axios.get('http://10.240.165.107:8080/api/products/search', {
     params: { keyword: keyword }
   }).then(res => {
     // 这里为了严谨，过滤一下，只显示仍在“待售(0)”状态的商品

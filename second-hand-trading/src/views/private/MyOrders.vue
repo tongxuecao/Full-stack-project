@@ -42,7 +42,7 @@ const goDetail = (row) => {
 }
 
 onMounted(() => {
-  axios.get('http://localhost:8080/api/products/my-bought', {
+  axios.get('http://10.240.165.107:8080/api/products/my-bought', {
     params: { userId: props.currentUser.id }
   }).then(res => {
     boughtProducts.value = res.data

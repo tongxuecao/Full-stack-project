@@ -19,7 +19,7 @@ public class ChatWebSocketController {
 
     @MessageMapping("/chat.send")
     public void sendMessage(@Payload ChatMessage message) {
-        ChatMessage saved = chatService.saveMessage(message);
+        ChatMessage saved = chatService.saveMessage(message);//存到数据库
 
         messagingTemplate.convertAndSend("/topic/chat." + message.getReceiverId(), saved);
         messagingTemplate.convertAndSend("/topic/chat." + message.getSenderId(), saved);

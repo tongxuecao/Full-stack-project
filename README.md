@@ -376,7 +376,7 @@ cd secondHandTrading
 ./mvnw spring-boot:run         # Linux / macOS
 ```
 
-后端运行在 `http://localhost:8080`。
+后端运行在 `http://10.240.165.107:8080`。
 
 ### 4. 启动前端
 

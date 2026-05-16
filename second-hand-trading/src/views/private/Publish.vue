@@ -22,7 +22,7 @@
 
         <el-form-item label="商品图片" prop="images">
           <el-upload
-            action="http://localhost:8080/api/files/upload"
+            action="http://10.240.165.107:8080/api/files/upload"
             list-type="picture-card"
             :on-success="handleUploadSuccess"
             :on-remove="handleRemove"
@@ -169,7 +169,7 @@ const submitPublish = () => {
     }
 
     // 3. 发送 POST 请求到咱们已经写好的后端接口
-    axios.post('http://localhost:8080/api/products/add', payload)
+    axios.post('http://10.240.165.107:8080/api/products/add', payload)
       .then(res => {
         if (res.data === 'success') {
           ElMessage.success('发布成功！你的闲置已经上架啦~')

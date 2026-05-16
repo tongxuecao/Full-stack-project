@@ -70,3 +70,9 @@ INSERT INTO [User] (username, password, phone, school_id, avatar) VALUES
 (N'张三', '123456', '13800001001', '20240001', 'https://api.dicebear.com/7.x/initials/svg?seed=ZS&backgroundColor=409eff'),
 (N'李四', '123456', '13800001002', '20240002', 'https://api.dicebear.com/7.x/initials/svg?seed=LS&backgroundColor=67c23a'),
 (N'王五', '123456', '13800001003', '20240003', 'https://api.dicebear.com/7.x/initials/svg?seed=WW&backgroundColor=e6a23c')
+
+
+-- 假设你当前的电脑 IP 是 10.240.165.107
+UPDATE ProductImage 
+SET image_url = REPLACE(image_url, 'http://localhost:8080', 'http://10.240.165.107:8080')
+WHERE image_url LIKE '%http://localhost:8080%';

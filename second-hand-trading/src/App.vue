@@ -290,4 +290,27 @@ const handleSearch = () => {
   margin: 0 auto;
   padding: 20px 32px;
 }
+@media (max-width: 768px) {
+  /* 1. 隐藏 Logo 旁边的文字，只保留图标（如果有的话） */
+  .logo-text {
+    display: none; 
+  }
+
+  /* 2. 压缩搜索框的宽度，或者让它占满全屏放到第二行 */
+  .search-box {
+    width: 140px !important; /* 强行缩小搜索框 */
+    margin: 0 10px;
+  }
+
+  /* 3. 隐藏“发布商品”等按钮里的文字，只保留图标 */
+  /* 这里假设你的按钮使用了 el-button */
+  .publish-btn span {
+    display: none; 
+  }
+  
+  /* 4. 减小整个头部容器的左右内边距 */
+  .header-container {
+    padding: 0 10px;
+  }
+}
 </style>

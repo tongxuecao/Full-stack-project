@@ -68,13 +68,13 @@ const toggleFavorite = async () => {
   }
   try {
     if (isFav.value) {
-      await axios.delete('http://localhost:8080/api/favorites/remove', {
+      await axios.delete('http://10.240.165.107:8080/api/favorites/remove', {
         params: { userId: props.currentUser.id, productId: props.product.id }
       })
       isFav.value = false
       ElMessage.success('已取消收藏')
     } else {
-      const res = await axios.post('http://localhost:8080/api/favorites/add', null, {
+      const res = await axios.post('http://10.240.165.107:8080/api/favorites/add', null, {
         params: { userId: props.currentUser.id, productId: props.product.id }
       })
       if (res.data === 'already') {

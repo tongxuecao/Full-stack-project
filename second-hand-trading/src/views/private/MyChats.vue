@@ -54,7 +54,7 @@ const activeOtherUserName = ref('')
 const fetchConversations = async () => {
   loading.value = true
   try {
-    const res = await axios.get('http://localhost:8080/api/chat/conversations', {
+    const res = await axios.get('http://10.240.165.107:8080/api/chat/conversations', {
       params: { userId: props.currentUser.id }
     })
     conversations.value = Array.isArray(res.data) ? res.data : []

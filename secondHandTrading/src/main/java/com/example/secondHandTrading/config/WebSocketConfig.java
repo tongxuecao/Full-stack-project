@@ -21,7 +21,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
-        registry.addEndpoint("/ws-native")
-                .setAllowedOriginPatterns("*");
+        registry.addEndpoint("/ws-native")//这就是服务器真正对外暴露的连接 URL 路径。
+                .setAllowedOriginPatterns("*");//允许任何来源（*）的前端网页连接到我的 WebSocket 服务
     }
 }
