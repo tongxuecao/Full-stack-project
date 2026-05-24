@@ -21,7 +21,8 @@
 - **路由懒加载**：所有页面组件通过 `() => import(...)` 动态导入，首屏只加载必要代码
 - **导航守卫**：`router.beforeEach` 拦截路由，未登录用户访问私有页面自动跳转登录页，支持登录后回跳原页面
 - **深色模式**：通过 Element Plus 官方暗黑主题 CSS 变量实现，一键切换亮色/暗色，偏好设置持久化到 localStorage
-- **响应式布局**：使用 Element Plus 的 24 栏栅格系统，适配不同屏幕尺寸
+- **响应式布局**：使用 Element Plus 的 24 栏栅格系统，适配桌面端和移动端
+- **动态域名适配**：通过 `window.location.hostname` 自动检测当前网络环境，动态拼接后端 API 地址、WebSocket 连接和图片资源 URL，切换网络无需手动修改任何代码
 - **用户状态响应式同步**：通过 `ref` + `watch(route)` 监听路由变化，登录/登出/切换账号后 Header 即时更新
 
 ### 后端技术
@@ -37,7 +38,7 @@
 **核心技术特性：**
 
 - **三层架构**：Controller（接口层）→ Service（业务逻辑层）→ Mapper（数据访问层），职责清晰
-- **CORS 跨域**：通过 `@CrossOrigin` 注解允许前端（5173 端口）跨域访问后端（8080 端口）
+- **CORS 跨域**：通过 `@CrossOrigin` 注解允许前端跨域访问后端，配合前端动态域名适配，支持任意局域网环境
 - **文件上传**：`MultipartFile` 接收图片，UUID 重命名防止文件名冲突，静态资源映射提供访问 URL
 - **文件大小限制**：商品图和头像统一限制 5MB（前端 `before-upload` + 后端 `file.getSize()` 双重校验）
 - **安全处理**：返回用户数据前擦除密码字段，防止敏感信息泄露到前端
@@ -48,15 +49,19 @@
 ```
 ┌──────────────────────────────────────────────────────────┐
 │                     浏览器 (Browser)                       │
-│                http://localhost:5173                      │
+│          http://<当前网络IP>:5173  (动态域名)               │
 └──────┬────────────────────────────┬──────────────────────┘
        │                            │
        │  HTTP REST                  │  WebSocket (STOMP)
-       │                            │  ws://localhost:8080/ws-native
+       │  (动态 baseURL)              │  (动态 ws/wss)
+       │                            │
 ┌──────▼──────────┐        ┌────────▼──────────┐
 │   Vue 3 前端     │        │   Spring Boot     │
 │   (Vite 构建)    │◄──────►│   后端 (Maven)     │
 │   port: 5173     │        │   port: 8080      │
+│                  │        │                   │
+│ src/config.js    │        │                   │
+│ 动态域名适配      │        │                   │
 └─────────────────┘        └────────┬──────────┘
                                     │
                             ┌───────▼──────────┐
@@ -95,6 +100,9 @@ Full-stack-project/
 │   │   │   └── ChatWindow.vue         # 浮动聊天窗口：实时消息、历史记录、气泡样式
 │   │   ├── composables/
 │   │   │   └── useChat.js             # WebSocket/STOMP 连接管理组合式函数
+│   │   ├── api/
+│   │   │   └── axios.js               # 集中化 Axios 实例（动态 baseURL）
+│   │   ├── config.js                  # 动态域名配置（API 地址 + 图片 URL + WebSocket）
 │   │   ├── router/
 │   │   │   └── index.js               # 路由配置 + 全局导航守卫
 │   │   ├── App.vue                    # 根组件：导航栏、头像+用户名、搜索、主题切换
@@ -262,6 +270,45 @@ Full-stack-project/
 - **路由切换动画**：个人中子页面切换带 fade-slide 过渡效果
 - **404 页面**：渐变色大号"404"+ 返回首页/上一页按钮
 
+### 10. 动态域名自动适配
+
+#### 问题背景
+
+前端代码中如果写死后端 IP 地址（如 `http://10.12.22.107:8080`），当切换网络（家中 Wi-Fi → 手机热点 → 公司网络）时，IP 发生变化，前端将无法找到后端，图片也无法加载。
+
+#### 解决方案
+
+通过 `src/config.js` 统一管理所有后端地址，利用浏览器原生的 `window.location` 对象动态获取当前访问的域名/IP：
+
+```js
+// src/config.js
+const currentHost = window.location.hostname;       // 自动获取当前网络 IP
+export const API_BASE_URL = `http://${currentHost}:8080`;  // HTTP API 基础地址
+export const WS_BASE_URL = `${wsProtocol}//${currentHost}:8080/ws-native`; // WebSocket
+
+// 图片 URL 转换工具：将相对路径自动拼接为完整后端地址
+export const getImageUrl = (path) => {
+  if (path?.startsWith('http')) {
+    const relative = path.replace(/^https?:\/\/[^/]+/, '');
+    return `${API_BASE_URL}${relative}`;
+  }
+  return `${API_BASE_URL}${path}`;
+};
+```
+
+#### 关键修改
+
+| 模块 | 修改内容 |
+|------|----------|
+| **Axios 请求** | 创建 `src/api/axios.js` 集中化实例，`baseURL` 设为动态值，所有组件不再硬编码 IP |
+| **WebSocket** | `useChat.js` 中 `brokerURL` 改为动态 `WS_BASE_URL`，适配 HTTP/HTTPS 协议自动切换 |
+| **图片资源** | 所有 `<img>` 和 `<el-avatar>` 的 `:src` 通过 `getImageUrl()` 包裹，确保图片从正确的后端地址加载 |
+| **文件上传** | `Publish.vue` 中 `el-upload` 的 `action` 改为动态绑定 `:action="uploadUrl"` |
+
+#### 使用效果
+
+无论使用什么网络环境访问前端（`http://localhost:5173`、`http://192.168.1.5:5173`、`http://10.12.22.107:5173`），前端都会自动将 API 请求、WebSocket 连接、图片资源指向同一主机 `8080` 端口的后端服务，无需任何手动修改。
+
 ## API 接口文档
 
 ### 用户模块 — `/api/users`
@@ -376,7 +423,7 @@ cd secondHandTrading
 ./mvnw spring-boot:run         # Linux / macOS
 ```
 
-后端运行在 `http://10.240.165.107:8080`。
+后端运行在 `http://<当前网络IP>:8080`（前端会自动检测浏览器地址栏的 hostname 动态拼接，无需手动修改）。
 
 ### 4. 启动前端
 
@@ -399,6 +446,7 @@ npm run dev
 ### 前端
 
 - **关注点分离**：视图组件（`views/`）与复用组件（`components/`）独立管理
+- **动态域名配置**：`config.js` 统一出口所有环境相关配置，`api/axios.js` 集中管理 HTTP 客户端，消除硬编码 IP
 - **组合式函数**：WebSocket 连接管理封装为 `useChat()` composable，ChatWindow 和 MyChats 复用同一逻辑
 - **路由级权限控制**：`meta.requiresAuth` + `beforeEach` 守卫
 - **响应式用户状态**：`ref` + `watch(route.fullPath)` 替代 `computed(localStorage)`，确保切换账号后 UI 即时更新
