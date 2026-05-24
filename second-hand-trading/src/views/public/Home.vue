@@ -47,7 +47,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import axios from 'axios'
+import api from '@/api/axios'
 import ProductCard from '../../components/ProductCard.vue'
 
 const router = useRouter()
@@ -91,7 +91,7 @@ onMounted(() => {
 
 const fetchFavoritedIds = () => {
   if (!currentUser.value) return
-  axios.get('http://10.240.165.107:8080/api/favorites/ids', {
+  api.get('/api/favorites/ids', {
     params: { userId: currentUser.value.id }
   }).then(res => {
     favoritedIds.value = res.data
@@ -101,7 +101,7 @@ const fetchFavoritedIds = () => {
 // 🌟 核心：向后端请求分页数据
 const loadPageData = () => {
   loading.value = true
-  axios.get('http://10.240.165.107:8080/api/products/page', {
+  api.get('/api/products/page', {
     params: {
       pageNum: currentPage.value,
       pageSize: pageSize.value,
@@ -147,7 +147,7 @@ const handleBuy = (product) => {
       type: 'success',
     }
   ).then(() => {
-    axios.post(`http://10.240.165.107:8080/api/products/buy/${product.id}`, null, {
+    api.post(`/api/products/buy/${product.id}`, null, {
       params: { buyerId: currentUser.value.id }
     }).then(res => {
       if (res.data === 'success') {

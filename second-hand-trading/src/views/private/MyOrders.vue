@@ -27,7 +27,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import api from '@/api/axios'
 
 const props = defineProps(['currentUser'])
 const router = useRouter()
@@ -42,7 +42,7 @@ const goDetail = (row) => {
 }
 
 onMounted(() => {
-  axios.get('http://10.240.165.107:8080/api/products/my-bought', {
+  api.get('/api/products/my-bought', {
     params: { userId: props.currentUser.id }
   }).then(res => {
     boughtProducts.value = res.data

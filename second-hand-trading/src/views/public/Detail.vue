@@ -13,7 +13,7 @@
 
             <el-image
               v-if="product.images && product.images.length > 0"
-              :src="product.images[0].imageUrl"
+              :src="getImageUrl(product.images[0].imageUrl)"
               :preview-src-list="previewList"
               :initial-index="0"
               fit="cover"
@@ -32,7 +32,7 @@
             <el-image
               v-for="(img, index) in product.images.slice(1)"
               :key="img.id"
-              :src="img.imageUrl"
+              :src="getImageUrl(img.imageUrl)"
               :preview-src-list="previewList"
               :initial-index="index + 1"
               fit="cover"
@@ -139,7 +139,8 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Star, StarFilled, Picture, ChatDotRound } from '@element-plus/icons-vue'
-import axios from 'axios'
+import api from '@/api/axios'
+import { getImageUrl } from '@/config'
 import ChatWindow from '../../components/ChatWindow.vue'
 
 const route = useRoute()
@@ -160,17 +161,17 @@ const isFav = ref(false)
 
 const previewList = computed(() => {
   if (!product.value?.images) return []
-  return product.value.images.map(img => img.imageUrl)
+  return product.value.images.map(img => getImageUrl(img.imageUrl))
 })
 
 const fetchDetail = async () => {
   loading.value = true
   const id = route.params.id
   try {
-    const res = await axios.get(`http://10.240.165.107:8080/api/products/detail/${id}`)
+    const res = await api.get(`/api/products/detail/${id}`)
     product.value = res.data
 
-    const sellerRes = await axios.get(`http://10.240.165.107:8080/api/users/info/${product.value.sellerId}`)
+    const sellerRes = await api.get(`/api/users/info/${product.value.sellerId}`)
     seller.value = sellerRes.data
 
     if (currentUser.value) {
@@ -185,7 +186,7 @@ const fetchDetail = async () => {
 
 const checkFavorite = async () => {
   try {
-    const res = await axios.get('http://10.240.165.107:8080/api/favorites/check', {
+    const res = await api.get('/api/favorites/check', {
       params: { userId: currentUser.value.id, productId: product.value.id }
     })
     isFav.value = res.data
@@ -197,13 +198,13 @@ const checkFavorite = async () => {
 const toggleFavorite = async () => {
   try {
     if (isFav.value) {
-      await axios.delete('http://10.240.165.107:8080/api/favorites/remove', {
+      await api.delete('/api/favorites/remove', {
         params: { userId: currentUser.value.id, productId: product.value.id }
       })
       isFav.value = false
       ElMessage.success('已取消收藏')
     } else {
-      const res = await axios.post('http://10.240.165.107:8080/api/favorites/add', null, {
+      const res = await api.post('/api/favorites/add', null, {
         params: { userId: currentUser.value.id, productId: product.value.id }
       })
       if (res.data === 'already') {
@@ -232,7 +233,7 @@ const handleBuy = () => {
   }
 
   ElMessageBox.confirm(`确认以 ￥${product.value.price} 的价格购买吗？`, '交易确认').then(() => {
-    axios.post(`http://10.240.165.107:8080/api/products/buy/${product.value.id}`, null, {
+    api.post(`/api/products/buy/${product.value.id}`, null, {
       params: { buyerId: currentUser.value.id }
     }).then(res => {
       if (res.data === 'success') {
@@ -250,7 +251,7 @@ const handleUnlist = () => {
     type: 'warning',
   }).then(async () => {
     try {
-      const res = await axios.delete(`http://10.240.165.107:8080/api/products/delete/${product.value.id}`, {
+      const res = await api.delete(`/api/products/delete/${product.value.id}`, {
         params: { userId: currentUser.value.id }
       })
       if (res.data === 'success') {

@@ -7,12 +7,12 @@
 
     <div v-loading="loading" style="min-height: 200px;">
       <el-row :gutter="20" v-if="favorites.length > 0">
-        <el-col :span="8" v-for="item in favorites" :key="item.id" style="margin-bottom: 20px;">
+        <el-col :xs="24" :sm="12" :md="8" v-for="item in favorites" :key="item.id" style="margin-bottom: 20px;">
           <el-card shadow="hover" class="favorite-card">
             <div class="card-image" @click="goDetail(item.id)">
               <el-image
                 v-if="item.images && item.images.length > 0"
-                :src="item.images[0].imageUrl"
+                :src="getImageUrl(item.images[0].imageUrl)"
                 fit="cover"
                 style="width: 100%; height: 100%;"
               />
@@ -43,7 +43,8 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete } from '@element-plus/icons-vue'
-import axios from 'axios'
+import api from '@/api/axios'
+import { getImageUrl } from '@/config'
 
 const props = defineProps(['currentUser'])
 const router = useRouter()
@@ -52,7 +53,7 @@ const loading = ref(false)
 
 const fetchFavorites = () => {
   loading.value = true
-  axios.get('http://10.240.165.107:8080/api/favorites/list', {
+  api.get('/api/favorites/list', {
     params: { userId: props.currentUser.id }
   }).then(res => {
     favorites.value = res.data
@@ -69,7 +70,7 @@ const handleRemove = (productId) => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    axios.delete('http://10.240.165.107:8080/api/favorites/remove', {
+    api.delete('/api/favorites/remove', {
       params: { userId: props.currentUser.id, productId }
     }).then(res => {
       if (res.data === 'success') {

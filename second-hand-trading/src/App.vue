@@ -33,11 +33,27 @@
             </template>
           </el-input>
         </div>
+        <el-button class="search-toggle-btn" text circle :icon="Search" @click="showMobileSearch = !showMobileSearch" />
+
+        <div v-if="showMobileSearch" class="mobile-search-overlay" @click.self="showMobileSearch = false">
+          <el-input
+            v-model="searchKeyword"
+            placeholder="搜搜看..."
+            size="large"
+            @keyup.enter="handleSearch"
+            class="mobile-search-input"
+            ref="mobileSearchRef"
+          >
+            <template #suffix>
+              <el-icon class="search-icon" @click="handleSearch"><Search /></el-icon>
+            </template>
+          </el-input>
+        </div>
 
         <div class="actions">
           <template v-if="isLoggedIn">
             <div class="user-info" @click="goTo('/user')">
-              <el-avatar :size="34" :src="currentUser?.avatar">
+              <el-avatar :size="34" :src="getImageUrl(currentUser?.avatar)">
                 {{ currentUser?.username?.charAt(0)?.toUpperCase() }}
               </el-avatar>
               <span class="username">{{ currentUser?.username }}</span>
@@ -72,10 +88,12 @@
 import { ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Shop, Search, Plus, Moon, Sunny } from '@element-plus/icons-vue'
+import { getImageUrl } from './config.js'
 
 const router = useRouter()
 const route = useRoute()
 const searchKeyword = ref('')
+const showMobileSearch = ref(false)
 
 const isLoggedIn = ref(false)
 const currentUser = ref(null)
@@ -107,6 +125,7 @@ const goTo = (path) => {
 }
 
 const handleSearch = () => {
+  showMobileSearch.value = false
   if (searchKeyword.value) {
     router.push({ path: '/search', query: { keyword: searchKeyword.value } })
     searchKeyword.value = ''
@@ -285,32 +304,46 @@ const handleSearch = () => {
   transform: rotate(90deg) scale(0.6);
 }
 
+.search-toggle-btn { display: none; }
+
+.mobile-search-overlay {
+  display: none;
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  background: var(--el-bg-color);
+  padding: 10px 16px;
+  z-index: 99;
+  border-bottom: 1px solid var(--el-border-color-lighter);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.mobile-search-input { width: 100%; }
+
 .main-content {
   max-width: 1400px;
   margin: 0 auto;
   padding: 20px 32px;
 }
+
 @media (max-width: 768px) {
-  /* 1. 隐藏 Logo 旁边的文字，只保留图标（如果有的话） */
-  .logo-text {
-    display: none; 
-  }
+  .logo-text { display: none; }
+  .header-inner { padding: 0 12px; }
+  .logo { margin-right: 8px; }
+  .nav-links { gap: 0; }
+  .nav-links .el-button { font-size: 14px; padding: 4px 10px; }
+  .search-area { display: none; }
+  .search-toggle-btn { display: flex; flex-shrink: 0; margin: 0 4px; }
+  .mobile-search-overlay { display: flex; }
+  .user-info .username { display: none; }
+  .actions { gap: 4px; }
+  .main-content { padding: 12px 12px; }
+}
 
-  /* 2. 压缩搜索框的宽度，或者让它占满全屏放到第二行 */
-  .search-box {
-    width: 140px !important; /* 强行缩小搜索框 */
-    margin: 0 10px;
-  }
-
-  /* 3. 隐藏“发布商品”等按钮里的文字，只保留图标 */
-  /* 这里假设你的按钮使用了 el-button */
-  .publish-btn span {
-    display: none; 
-  }
-  
-  /* 4. 减小整个头部容器的左右内边距 */
-  .header-container {
-    padding: 0 10px;
-  }
+@media (max-width: 480px) {
+  .main-header { height: 56px; }
+  .header-inner { padding: 0 8px; }
+  .nav-links .el-button { font-size: 13px; padding: 2px 8px; }
 }
 </style>

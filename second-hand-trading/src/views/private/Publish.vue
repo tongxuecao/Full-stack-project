@@ -22,7 +22,7 @@
 
         <el-form-item label="商品图片" prop="images">
           <el-upload
-            action="http://10.240.165.107:8080/api/files/upload"
+            :action="uploadUrl"
             list-type="picture-card"
             :on-success="handleUploadSuccess"
             :on-remove="handleRemove"
@@ -93,9 +93,11 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue' // 引入上传图标
-import axios from 'axios'
+import api from '@/api/axios'
+import { API_BASE_URL } from '@/config'
 
 const router = useRouter()
+const uploadUrl = API_BASE_URL + '/api/files/upload'
 const publishForm = ref(null)
 const loading = ref(false)
 const imageUrls = ref([])// 🌟 新增：专门用来存放上传成功后返回的图片 URL 数组
@@ -169,7 +171,7 @@ const submitPublish = () => {
     }
 
     // 3. 发送 POST 请求到咱们已经写好的后端接口
-    axios.post('http://10.240.165.107:8080/api/products/add', payload)
+    api.post('/api/products/add', payload)
       .then(res => {
         if (res.data === 'success') {
           ElMessage.success('发布成功！你的闲置已经上架啦~')

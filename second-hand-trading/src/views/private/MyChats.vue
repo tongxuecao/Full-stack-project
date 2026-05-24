@@ -9,7 +9,7 @@
           class="conv-item"
           @click="openChat(conv)"
         >
-          <el-avatar :size="44" :src="conv.otherUserAvatar">
+          <el-avatar :size="44" :src="getImageUrl(conv.otherUserAvatar)">
             {{ conv.otherUserName?.charAt(0) }}
           </el-avatar>
           <div class="conv-info">
@@ -39,7 +39,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import api from '@/api/axios'
+import { getImageUrl } from '@/config'
 import ChatWindow from '../../components/ChatWindow.vue'
 
 const props = defineProps(['currentUser'])
@@ -54,7 +55,7 @@ const activeOtherUserName = ref('')
 const fetchConversations = async () => {
   loading.value = true
   try {
-    const res = await axios.get('http://10.240.165.107:8080/api/chat/conversations', {
+    const res = await api.get('/api/chat/conversations', {
       params: { userId: props.currentUser.id }
     })
     conversations.value = Array.isArray(res.data) ? res.data : []

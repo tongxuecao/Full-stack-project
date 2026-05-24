@@ -42,7 +42,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
-import axios from 'axios'
+import api from '@/api/axios'
 
 const router = useRouter()
 const route = useRoute()
@@ -81,7 +81,7 @@ const handleLogin = () => {
     loading.value = true
     
     // 真实的登录请求
-    axios.post('http://10.240.165.107:8080/api/users/login', {
+    api.post('/api/users/login', {
       username: form.value.username,
       password: form.value.password
     }).then(res => {
@@ -159,9 +159,14 @@ onMounted(() => {
 }
 
 .auth-card {
-  width: 400px;
+  width: 90%;
+  max-width: 400px;
   border-radius: 12px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+@media (max-width: 480px) {
+  .auth-page { margin: -12px; padding: 0 10px; }
+  .auth-header h2 { font-size: 22px; }
 }
 
 .auth-header {

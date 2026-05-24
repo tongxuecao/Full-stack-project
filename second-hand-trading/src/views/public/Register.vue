@@ -52,7 +52,7 @@ import { ref, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { User, Lock, Iphone } from '@element-plus/icons-vue'
-import axios from 'axios' // 记得顶部引入
+import api from '@/api/axios'
 
 const router = useRouter()
 const route = useRoute()
@@ -119,7 +119,7 @@ const handleRegister = () => {
     loading.value = true
     
     // 真实的注册请求
-    axios.post('http://10.240.165.107:8080/api/users/register', form.value)
+    api.post('/api/users/register', form.value)
       .then(res => {
         loading.value = false
         if (res.data === 'success') {
@@ -145,7 +145,11 @@ const handleRegister = () => {
   background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
   margin: -20px -40px; 
 }
-.auth-card { width: 400px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+.auth-card { width: 90%; max-width: 400px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+@media (max-width: 480px) {
+  .auth-page { margin: -12px; padding: 0 10px; }
+  .auth-header h2 { font-size: 22px; }
+}
 .auth-header { text-align: center; margin-bottom: 30px; }
 .auth-header h2 { margin: 0 0 10px; color: #303133; font-size: 26px; }
 .auth-header p { margin: 0; color: #909399; font-size: 14px; }

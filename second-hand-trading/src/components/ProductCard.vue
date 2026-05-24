@@ -4,7 +4,7 @@
       <div class="card-image-box">
         <el-image
           v-if="product.images && product.images.length > 0"
-          :src="product.images[0].imageUrl"
+          :src="getImageUrl(product.images[0].imageUrl)"
           fit="cover"
           style="width: 100%; height: 100%; position: absolute; inset: 0;"
         />
@@ -40,7 +40,8 @@
 import { ref, watch } from 'vue'
 import { Star, StarFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import api from '@/api/axios'
+import { getImageUrl } from '@/config'
 
 const props = defineProps(['product', 'currentUser', 'favoritedIds'])
 const emit = defineEmits(['buy', 'goDetail'])
@@ -68,13 +69,13 @@ const toggleFavorite = async () => {
   }
   try {
     if (isFav.value) {
-      await axios.delete('http://10.240.165.107:8080/api/favorites/remove', {
+      await api.delete('/api/favorites/remove', {
         params: { userId: props.currentUser.id, productId: props.product.id }
       })
       isFav.value = false
       ElMessage.success('已取消收藏')
     } else {
-      const res = await axios.post('http://10.240.165.107:8080/api/favorites/add', null, {
+      const res = await api.post('/api/favorites/add', null, {
         params: { userId: props.currentUser.id, productId: props.product.id }
       })
       if (res.data === 'already') {

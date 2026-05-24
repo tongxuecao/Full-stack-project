@@ -26,7 +26,7 @@ import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Close, Promotion } from '@element-plus/icons-vue'
 import { useChat } from '../composables/useChat.js'
-import axios from 'axios'
+import api from '@/api/axios'
 
 const props = defineProps({
   visible: Boolean,
@@ -54,7 +54,7 @@ const mergedMessages = computed(() => {
 const loadHistory = async () => {
   if (!props.productId || !props.currentUser || !props.otherUserId) return
   try {
-    const res = await axios.get('http://10.240.165.107:8080/api/chat/history', {
+    const res = await api.get('/api/chat/history', {
       params: {
         productId: props.productId,
         userId1: props.currentUser.id,
@@ -211,5 +211,17 @@ onUnmounted(() => {
   border-top: 1px solid var(--el-border-color-lighter);
   background: var(--el-bg-color);
   transition: background 0.3s;
+}
+
+@media (max-width: 480px) {
+  .chat-window {
+    width: 100vw;
+    height: 100vh;
+    bottom: 0;
+    right: 0;
+    border-radius: 0;
+  }
+  .chat-messages { padding: 8px; }
+  .msg-bubble { max-width: 90%; }
 }
 </style>

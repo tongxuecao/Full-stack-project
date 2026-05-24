@@ -1,10 +1,41 @@
 <template>
   <div class="user-center-layout">
+    <div class="mobile-topbar">
+      <el-button text circle :icon="Expand" @click="drawerOpen = true" />
+      <span class="mobile-title">{{ currentUser?.username || '个人中心' }}</span>
+    </div>
+    <el-drawer v-model="drawerOpen" direction="ltr" size="260px" :with-header="false">
+      <div class="user-profile-mini">
+        <div class="avatar-wrapper" @click="triggerAvatarUpload">
+          <el-avatar :size="48" :src="getImageUrl(currentUser?.avatar)">
+            <span style="font-size: 20px;">{{ avatarDefaultText }}</span>
+          </el-avatar>
+          <div class="avatar-overlay">更换</div>
+        </div>
+        <h3 class="username-link" @click="showNameDialog = true">{{ currentUser?.username }}</h3>
+        <el-tag size="small" type="success" v-if="currentUser">学号：{{ currentUser.schoolId }}</el-tag>
+        <div class="profile-actions">
+          <el-button size="small" text type="primary" @click="showNameDialog = true">修改名称</el-button>
+          <el-button size="small" text type="warning" @click="showPasswordDialog = true">修改密码</el-button>
+        </div>
+      </div>
+      <el-menu :default-active="activeMenu" class="center-menu" router>
+        <el-menu-item index="/user/published"><el-icon><Sell /></el-icon><span>我发布的商品</span></el-menu-item>
+        <el-menu-item index="/user/orders"><el-icon><ShoppingCart /></el-icon><span>我买到的宝贝</span></el-menu-item>
+        <el-menu-item index="/user/favorites"><el-icon><Star /></el-icon><span>我的收藏</span></el-menu-item>
+        <el-menu-item index="/user/chats"><el-icon><ChatDotRound /></el-icon><span>我的消息</span></el-menu-item>
+        <el-divider style="margin: 8px 0;" />
+        <el-menu-item index="/about"><el-icon><QuestionFilled /></el-icon><span>帮助与反馈</span></el-menu-item>
+      </el-menu>
+      <div class="logout-section">
+        <el-button type="danger" plain style="width: 100%;" @click="handleLogout"><el-icon><SwitchButton /></el-icon> 退出登录</el-button>
+      </div>
+    </el-drawer>
     <el-container class="center-container">
       <el-aside class="center-aside">
         <div class="user-profile-mini">
           <div class="avatar-wrapper" @click="triggerAvatarUpload">
-            <el-avatar :size="60" :src="currentUser?.avatar">
+            <el-avatar :size="60" :src="getImageUrl(currentUser?.avatar)">
               <span style="font-size: 24px;">{{ avatarDefaultText }}</span>
             </el-avatar>
             <div class="avatar-overlay">更换</div>
@@ -104,9 +135,10 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Sell, ShoppingCart, QuestionFilled, Star, SwitchButton, ChatDotRound } from '@element-plus/icons-vue'
+import { Sell, ShoppingCart, QuestionFilled, Star, SwitchButton, ChatDotRound, Expand } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import axios from 'axios'
+import api from '@/api/axios'
+import { getImageUrl } from '@/config'
 
 const route = useRoute()
 const router = useRouter()
@@ -124,6 +156,7 @@ const avatarDefaultText = computed(() => {
   return currentUser.value?.username?.charAt(0)?.toUpperCase() || 'U'
 })
 
+const drawerOpen = ref(false)
 const avatarInputRef = ref(null)
 const showNameDialog = ref(false)
 const showPasswordDialog = ref(false)
@@ -150,7 +183,7 @@ const loadUser = () => {
 
 const refreshUser = async () => {
   try {
-    const res = await axios.get(`http://10.240.165.107:8080/api/users/refresh/${currentUser.value.id}`)
+    const res = await api.get(`/api/users/refresh/${currentUser.value.id}`)
     if (res.data) {
       localStorage.setItem('user', JSON.stringify(res.data))
       currentUser.value = res.data
@@ -178,7 +211,7 @@ const handleAvatarChange = async (e) => {
   formData.append('file', file)
 
   try {
-    const uploadRes = await axios.post('http://10.240.165.107:8080/api/files/upload', formData, {
+    const uploadRes = await api.post('/api/files/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     const avatarUrl = uploadRes.data
@@ -191,7 +224,7 @@ const handleAvatarChange = async (e) => {
       return
     }
 
-    const updateRes = await axios.put('http://10.240.165.107:8080/api/users/avatar', {
+    const updateRes = await api.put('/api/users/avatar', {
       id: currentUser.value.id,
       avatarUrl
     })
@@ -216,7 +249,7 @@ const handleUpdateName = async () => {
   }
   savingName.value = true
   try {
-    const res = await axios.put('http://10.240.165.107:8080/api/users/username', {
+    const res = await api.put('/api/users/username', {
       id: currentUser.value.id,
       username: name
     })
@@ -253,7 +286,7 @@ const handleUpdatePassword = async () => {
   }
   savingPassword.value = true
   try {
-    const res = await axios.put('http://10.240.165.107:8080/api/users/password', {
+    const res = await api.put('/api/users/password', {
       id: currentUser.value.id,
       oldPassword,
       newPassword
@@ -422,21 +455,28 @@ const handleLogout = () => {
   opacity: 0;
   transform: translateX(-12px);
 }
+.mobile-topbar {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--el-bg-color);
+  border-bottom: 1px solid var(--el-border-color-lighter);
+}
+
+.mobile-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--el-text-color-primary);
+}
+
+.drawer-content .user-profile-mini { border-bottom: 1px solid var(--el-border-color-lighter); }
+
 @media (max-width: 768px) {
-  /* 让包裹容器变成上下排列，而不是左右排列 */
-  .el-container {
-    flex-direction: column; 
-    height: auto !important; /* 解除高度限制 */
-  }
-  /* 让左侧导航栏宽度变成 100% 占满全屏 */
-  .el-aside {
-    width: 100% !important;
-    border-right: none;
-    border-bottom: 1px solid #eee;
-  }
-  /* 右侧内容区减小内边距 */
-  .el-main {
-    padding: 10px !important;
-  }
+  .mobile-topbar { display: flex; }
+  .center-aside { display: none !important; }
+  .center-container { flex-direction: column; height: auto !important; border-radius: 0; box-shadow: none; border: none; }
+  .center-main { padding: 10px !important; min-height: auto; }
+  .user-center-layout { max-width: 100%; }
 }
 </style>

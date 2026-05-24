@@ -1,4 +1,5 @@
 import { ref, onUnmounted } from 'vue'
+import { WS_BASE_URL } from '../config.js'
 
 export function useChat(userId) {
   const messages = ref([])
@@ -12,7 +13,7 @@ export function useChat(userId) {
 
     import('@stomp/stompjs').then(({ Client }) => {//初始化 Client 和配置参数
       stompClient = new Client({
-        brokerURL: 'ws://localhost:8080/ws-native',
+        brokerURL: WS_BASE_URL,
         reconnectDelay: 5000,
         heartbeatIncoming: 10000,
         heartbeatOutgoing: 10000,
